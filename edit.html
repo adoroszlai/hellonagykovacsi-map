@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>térkép</title>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+		<link rel="stylesheet" href="lib/leaflet-draw/leaflet.draw.css" />
+		<script src="http://code.jquery.com/jquery-1.9.1.min.js" type="text/javascript"></script>
+		<script src="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js"></script>
+		<script src="lib/leaflet-draw/leaflet.draw.js"></script>
+		<script src="lib/leaflet-osm.js"></script>
+	</head>
+<body>
+	<div id="map" style="width: 600px; height: 400px"></div>
+	<script>
+		var home = new L.LatLng(47.574264, 18.875889);
+		var initial_zoom_level = 14;
+		var map = L.map('map');
+		var tileLayer = new L.OSM.Mapnik();
+		tileLayer.addTo(map);
+
+		map.setView(home, initial_zoom_level);
+
+		var drawnItems = new L.FeatureGroup();
+		map.addLayer(drawnItems);
+		var drawControl = new L.Control.Draw({
+			edit: {
+				featureGroup: drawnItems
+			}
+		});
+		map.addControl(drawControl);
+
+		map.on('draw:created', function (evt) {
+			if (evt.layerType === 'marker') {
+				var latlng = evt.layer.getLatLng();
+				console.log('{"id":"", "name":"", "lng":"' + latlng.lng + '", "lat":"' + latlng.lat + '", "icon":"marker"},');
+			}
+			drawnItems.addLayer(evt.layer);
+		});
+	</script>
+</body>
+</html>
