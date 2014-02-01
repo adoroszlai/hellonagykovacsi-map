@@ -1,5 +1,8 @@
 var map_center = [ 47.578, 18.885 ];
 var clusterByDefault = true;
+var on_route_threshold = 30; // meters
+var icons = {}
+var page = page_name();
 
 function page_name() {
 	var path = window.location.pathname;
@@ -11,10 +14,25 @@ function page_name() {
 	return page;
 }
 
+function create_marker(itemDef, color) {
+	var iconName = itemDef.icon || "marker";
+	var icon = icons[iconName];
+	var selected = itemDef.id !== undefined && itemDef.id === page;
+	if (icon === undefined) {
+		var size = selected ? "l" : "s";
+		icon = L.MakiMarkers.icon({ icon: iconName, color: color, size: size });
+		if (!selected) {
+			icons[iconName] = icon;
+		}
+	}
+	var marker = L.marker(L.latLng(itemDef.lat, itemDef.lng), { icon: icon, title: itemDef.name });
+	marker.bindPopup(itemDef.name);
+	return marker;
+}
+
 function load_pois(map) {
 	var pois = new L.featureGroup();
 	var overlays = {};
-	var icons = {}
 	var page = page_name();
 
 	for (var l = 0; l < layerDefs.length; l++) {
@@ -25,19 +43,7 @@ function load_pois(map) {
 		overlays[layerDef['name']] = layer;
 
 		for (var i = 0; i < layerDef.items.length; i++) {
-			var itemDef = layerDef.items[i];
-			var iconName = itemDef.icon || "marker";
-			var icon = icons[iconName];
-			var selected = itemDef.id !== undefined && itemDef.id === page;
-			if (icon === undefined) {
-				var size = selected ? "l" : "s";
-				icon = L.MakiMarkers.icon({ icon: iconName, color: layerDef.color, size: size });
-				if (!selected) {
-					icons[iconName] = icon;
-				}
-			}
-			var marker = L.marker(L.latLng(itemDef.lat, itemDef.lng), { icon: icon });
-			marker.bindPopup(itemDef.name);
+			var marker = create_marker(layerDef.items[i], layerDef.color);
 			layer.addLayer(marker);
 		}
 	}
@@ -45,6 +51,20 @@ function load_pois(map) {
 	L.control.layers({}, overlays).addTo(map);
 
 	map.addLayer(pois);
+}
+
+function get_pois(map) {
+	var markers = new Array();
+
+	for (var l = 0; l < layerDefs.length; l++) {
+		var layerDef = layerDefs[l];
+		for (var i = 0; i < layerDef.items.length; i++) {
+			var marker = create_marker(layerDef.items[i], layerDef.color);
+			markers.push(marker);
+		}
+	}
+
+	return markers;
 }
 
 function init_street_map() {
@@ -75,7 +95,8 @@ function init_route_map() {
 }
 
 function _init_route_map(route_name) {
-	var map = L.map('map');
+	var map_center = [ 47.5838, 18.8737 ];
+	var map = L.map('map', { center: map_center, zoom: 14 });
 	var tileLayer = new L.OSM.CycleMap();
 	tileLayer.addTo(map);
 
@@ -83,6 +104,7 @@ function _init_route_map(route_name) {
 
 	$.get("routes/" + route_name, function(data) {
 		var route = new L.GPX(data, {
+			async: true,
 			marker_options: {
 				startIconUrl: 'lib/leaflet-gpx/pin-icon-start.png',
 				endIconUrl: 'lib/leaflet-gpx/pin-icon-end.png',
@@ -91,9 +113,16 @@ function _init_route_map(route_name) {
 		});
 		route.on('addline', function(e) {
 			elevation.addData(e.line);
-		});
-		route.on('loaded', function (e) {
-			map.fitBounds(e.target.getBounds(), { padding: [100,100] });
+
+			var markers = get_pois(map);
+			for (var i = 0; i < markers.length; ++i) {
+				var marker = markers[i];
+				var closest = L.GeometryUtil.closest(map, e.line, marker.getLatLng());
+				var dist = marker.getLatLng().distanceTo(new L.LatLng(closest.lat, closest.lng));
+				if (dist < on_route_threshold) {
+					map.addLayer(marker);
+				}
+			}
 		});
 		map.addLayer(route);
 		elevation.addTo(map);
