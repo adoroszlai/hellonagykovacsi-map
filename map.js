@@ -68,7 +68,8 @@ function get_pois(map) {
 }
 
 function init_street_map() {
-	var map = L.map('map', { center: map_center, zoom: 13 });
+	var map = L.map('map', { center: map_center, zoom: 13, zoomControl: false });
+	new L.Control.ZoomFS().addTo(map);
 	var tileLayer = new L.OSM.Mapnik();
 	tileLayer.addTo(map);
 
@@ -76,7 +77,8 @@ function init_street_map() {
 }
 
 function init_hiking_map() {
-	var map = L.map('map', { center: map_center, zoom: 12 });
+	var map = L.map('map', { center: map_center, zoom: 12, zoomControl: false });
+	new L.Control.ZoomFS().addTo(map);
 	var tileLayer = new L.OSM.CycleMap();
 	tileLayer.addTo(map);
 
@@ -96,7 +98,9 @@ function init_route_map() {
 
 function _init_route_map(route_name) {
 	var map_center = [ 47.5838, 18.8737 ];
-	var map = L.map('map', { center: map_center, zoom: 14 });
+	var map = L.map('map', { center: map_center, zoom: 13, zoomControl: false });
+	new L.Control.ZoomFS().addTo(map);
+
 	var tileLayer = new L.OSM.CycleMap();
 	tileLayer.addTo(map);
 
@@ -125,6 +129,12 @@ function _init_route_map(route_name) {
 			}
 		});
 		map.addLayer(route);
+	});
+
+	map.on('enterFullscreen', function() {
 		elevation.addTo(map);
+	});
+	map.on('exitFullscreen', function() {
+		elevation.removeFrom(map);
 	});
 }

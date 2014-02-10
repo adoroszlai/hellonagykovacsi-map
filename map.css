@@ -1,0 +1,8 @@
+.leaflet-control-fullscreen {
+  background-image: url(lib/icon-fullscreen.png);
+}
+
+#map {
+ width: 480px;
+ height: 270px;
+}
