@@ -6,4 +6,5 @@ leaflet plugins used:
  * [leaflet-gpx](https://github.com/mpetazzoni/leaflet-gpx)
  * [Leaflet.Elevation](https://github.com/MrMufflon/Leaflet.Elevation)
  * [Leaflet.GeometryUtil](https://github.com/makinacorpus/Leaflet.GeometryUtil)
+ * [Leaflet.Control.ZoomFS](https://github.com/elidupuis/leaflet.zoomfs)
  * [Leaflet.draw](https://github.com/Leaflet/Leaflet.draw)
