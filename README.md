@@ -1,4 +1,12 @@
-leaflet plugins used:
+# Map for hellonagykovacsi.hu
+
+## demo
+
+ * [falu](http://adoroszlai.github.io/hellonagykovacsi-map/index.html)
+ * [túra](http://adoroszlai.github.io/hellonagykovacsi-map/tura.html)
+ * [útvonal](http://adoroszlai.github.io/hellonagykovacsi-map/utvonal.html)
+
+## Leaflet plugins used
 
  * [Leaflet.MakiMarkers](https://github.com/jseppi/Leaflet.MakiMarkers)
  * [leaflet-osm](https://github.com/jfirebaugh/leaflet-osm)
