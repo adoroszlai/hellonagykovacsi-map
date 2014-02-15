@@ -97,7 +97,6 @@ function init_route_map() {
 }
 
 function _init_route_map(route_name) {
-	var map_center = [ 47.5838, 18.8737 ];
 	var map = L.map('map', { center: map_center, zoom: 13, zoomControl: false });
 	new L.Control.ZoomFS().addTo(map);
 
@@ -115,6 +114,12 @@ function _init_route_map(route_name) {
 				shadowUrl: 'lib/leaflet-gpx/pin-shadow.png'
 			}
 		});
+		var fitBounds = function() {
+			setTimeout(function() {
+				map.fitBounds(route.getBounds());
+			});
+		};
+		route.on('loaded', fitBounds);
 		route.on('addline', function(e) {
 			elevation.addData(e.line);
 
@@ -129,12 +134,14 @@ function _init_route_map(route_name) {
 			}
 		});
 		map.addLayer(route);
-	});
 
-	map.on('enterFullscreen', function() {
-		elevation.addTo(map);
-	});
-	map.on('exitFullscreen', function() {
-		elevation.removeFrom(map);
+		map.on('enterFullscreen', function() {
+			elevation.addTo(map);
+			fitBounds();
+		});
+		map.on('exitFullscreen', function() {
+			elevation.removeFrom(map);
+			fitBounds();
+		});
 	});
 }
