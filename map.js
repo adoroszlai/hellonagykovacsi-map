@@ -83,11 +83,8 @@ function init_street_map() {
 function init_hiking_map() {
 	var map = L.map('map', { center: map_center, zoom: 12, zoomControl: false });
 	new L.Control.ZoomFS().addTo(map);
-	var tileLayer = new L.OSM.CycleMap();
-	tileLayer.addTo(map);
-
-	var hiking = L.tileLayer('http://www.openstreetmap.hu/tt/{z}/{x}/{y}.png', { maxZoom: 16 });
-	hiking.addTo(map);
+	new L.OSM.CycleMap().addTo(map);
+	_addHikingLayer(map);
 
 	load_pois(map);
 }
@@ -103,9 +100,8 @@ function init_route_map() {
 function _init_route_map(route_name) {
 	var map = L.map('map', { center: map_center, zoom: 13, zoomControl: false });
 	new L.Control.ZoomFS().addTo(map);
-
-	var tileLayer = new L.OSM.CycleMap();
-	tileLayer.addTo(map);
+	new L.OSM.CycleMap().addTo(map);
+	_addHikingLayer(map);
 
 	var elevation = L.control.elevation({width:500});
 
@@ -120,7 +116,7 @@ function _init_route_map(route_name) {
 		});
 		var fitBounds = function() {
 			setTimeout(function() {
-				map.fitBounds(route.getBounds());
+				map.fitBounds(route.getBounds(), { padding: [25, 25] });
 			});
 		};
 		route.on('loaded', fitBounds);
@@ -148,4 +144,9 @@ function _init_route_map(route_name) {
 			fitBounds();
 		});
 	});
+}
+
+function _addHikingLayer(map) {
+	var hiking = L.tileLayer('http://www.openstreetmap.hu/tt/{z}/{x}/{y}.png', { maxZoom: 16 });
+	hiking.addTo(map);
 }
