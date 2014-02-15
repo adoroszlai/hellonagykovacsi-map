@@ -11,6 +11,10 @@ function page_name() {
 	if (lastSlash > 0) {
 		page = path.substr(lastSlash+1);
 	}
+	var lastDot = page.lastIndexOf('.');
+	if (lastDot > 0) {
+		page = page.substr(0, lastDot);
+	}
 	return page;
 }
 
