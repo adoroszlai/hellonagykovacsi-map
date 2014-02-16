@@ -84,7 +84,7 @@ function init_hiking_map() {
 	var map = L.map('map', { center: map_center, zoom: 12, zoomControl: false });
 	new L.Control.ZoomFS().addTo(map);
 	new L.OSM.CycleMap().addTo(map);
-	_addHikingLayer(map);
+	new L.OSM.HuHiking().addTo(map);
 
 	load_pois(map);
 }
@@ -101,7 +101,8 @@ function _init_route_map(route_name) {
 	var map = L.map('map', { center: map_center, zoom: 13, zoomControl: false });
 	new L.Control.ZoomFS().addTo(map);
 	new L.OSM.CycleMap().addTo(map);
-	_addHikingLayer(map);
+	new L.OSM.HuHiking().addTo(map);
+	console.log(map.getMaxZoom());
 
 	var elevation = L.control.elevation({width:500});
 
@@ -144,9 +145,4 @@ function _init_route_map(route_name) {
 			fitBounds();
 		});
 	});
-}
-
-function _addHikingLayer(map) {
-	var hiking = L.tileLayer('http://www.openstreetmap.hu/tt/{z}/{x}/{y}.png', { maxZoom: 16 });
-	hiking.addTo(map);
 }
