@@ -11,6 +11,10 @@ function page_name() {
 	if (lastSlash > 0) {
 		page = path.substr(lastSlash+1);
 	}
+	var lastDot = page.lastIndexOf('.');
+	if (lastDot > 0) {
+		page = page.substr(0, lastDot);
+	}
 	return page;
 }
 
@@ -79,11 +83,8 @@ function init_street_map() {
 function init_hiking_map() {
 	var map = L.map('map', { center: map_center, zoom: 12, zoomControl: false });
 	new L.Control.ZoomFS().addTo(map);
-	var tileLayer = new L.OSM.CycleMap();
-	tileLayer.addTo(map);
-
-	var hiking = L.tileLayer('http://www.openstreetmap.hu/tt/{z}/{x}/{y}.png', { maxZoom: 16 });
-	hiking.addTo(map);
+	new L.OSM.CycleMap().addTo(map);
+	new L.OSM.HuHiking().addTo(map);
 
 	load_pois(map);
 }
@@ -97,12 +98,11 @@ function init_route_map() {
 }
 
 function _init_route_map(route_name) {
-	var map_center = [ 47.5838, 18.8737 ];
 	var map = L.map('map', { center: map_center, zoom: 13, zoomControl: false });
 	new L.Control.ZoomFS().addTo(map);
-
-	var tileLayer = new L.OSM.CycleMap();
-	tileLayer.addTo(map);
+	new L.OSM.CycleMap().addTo(map);
+	new L.OSM.HuHiking().addTo(map);
+	console.log(map.getMaxZoom());
 
 	var elevation = L.control.elevation({width:500});
 
@@ -115,6 +115,12 @@ function _init_route_map(route_name) {
 				shadowUrl: 'lib/leaflet-gpx/pin-shadow.png'
 			}
 		});
+		var fitBounds = function() {
+			setTimeout(function() {
+				map.fitBounds(route.getBounds(), { padding: [25, 25] });
+			});
+		};
+		route.on('loaded', fitBounds);
 		route.on('addline', function(e) {
 			elevation.addData(e.line);
 
@@ -129,12 +135,14 @@ function _init_route_map(route_name) {
 			}
 		});
 		map.addLayer(route);
-	});
 
-	map.on('enterFullscreen', function() {
-		elevation.addTo(map);
-	});
-	map.on('exitFullscreen', function() {
-		elevation.removeFrom(map);
+		map.on('enterFullscreen', function() {
+			elevation.addTo(map);
+			fitBounds();
+		});
+		map.on('exitFullscreen', function() {
+			elevation.removeFrom(map);
+			fitBounds();
+		});
 	});
 }
