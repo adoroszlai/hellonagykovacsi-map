@@ -102,7 +102,6 @@ function _init_route_map(route_name) {
 	new L.Control.ZoomFS().addTo(map);
 	new L.OSM.CycleMap().addTo(map);
 	new L.OSM.HuHiking().addTo(map);
-	console.log(map.getMaxZoom());
 
 	var elevation = L.control.elevation({width:500});
 
